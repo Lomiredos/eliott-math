@@ -19,6 +19,8 @@ target_include_directories(eliott-math INTERFACE
 
     include/
 )
+if(PROJECT_IS_TOP_LEVEL)
+
 
 # --- Tests ---
 add_executable(tests
@@ -29,3 +31,5 @@ target_link_libraries(tests PRIVATE
     eliott-math
     doctest::doctest
 )
+
+endif()
