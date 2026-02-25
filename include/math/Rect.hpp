@@ -70,11 +70,9 @@ namespace ee::math
         {
 
             bool topLeft = isInside(_other.getPosition(0, 0));
-            bool topRight = isInside(_other.getPosition(1, 0));
-            bool bottomLeft = isInside(_other.getPosition(0, 1));
             bool bottomRight = isInside(_other.getPosition(1, 1));
 
-            return (topLeft && topRight && bottomLeft && bottomRight)
+            return (topLeft && bottomRight)
         }
 
         template <typename U>
