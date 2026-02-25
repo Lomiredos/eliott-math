@@ -66,13 +66,13 @@ namespace ee::math
             return (XCollide && YCollide);
         }
 
-        bool contains(const Rect<T> &_other)
+        bool contains(const Rect<T> &_other) const
         {
 
             bool topLeft = isInside(_other.getPosition(0, 0));
             bool bottomRight = isInside(_other.getPosition(1, 1));
 
-            return (topLeft && bottomRight)
+            return (topLeft && bottomRight);
         }
 
         template <typename U>
