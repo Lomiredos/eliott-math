@@ -1,8 +1,0 @@
-[
-{
-  "directory": "C:/Dev/eliott-math/build",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/tests.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\tests.dir\\tests\\test_math.cpp.obj -c C:\\Dev\\eliott-math\\tests\\test_math.cpp",
-  "file": "C:/Dev/eliott-math/tests/test_math.cpp",
-  "output": "CMakeFiles/tests.dir/tests/test_math.cpp.obj"
-}
-]
