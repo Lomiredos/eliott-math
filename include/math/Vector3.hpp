@@ -63,6 +63,8 @@ namespace ee::math
         {
             return Vector3<T>(x - _other.x, y - _other.y, z - _other.z);
         }
+        Vector3<T> operator-() const { return { -x, -y, -z }; }
+
         Vector3<T> operator*(const Vector3<T>& _other) const
         {
             return Vector3<T>(x * _other.x, y * _other.y, z * _other.z);
@@ -102,7 +104,7 @@ namespace ee::math
         {
             if (Magnetude() > 0)
                 return *this / Magnetude();
-            return Vector2<T>();
+            return Vector3<T>();
         };
 
         T Distance(const Vector3<T>& _other) const

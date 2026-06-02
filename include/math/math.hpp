@@ -2,3 +2,4 @@
 #include "Rect.hpp"
 #include "Transform.hpp"
 #include "Vector2.hpp"
+#include "Quaternion.hpp"

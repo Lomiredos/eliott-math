@@ -100,6 +100,10 @@ namespace ee::math
             return std::sqrt(dx * dx + dy * dy);
         };
 
+        T Dot(const Vector2<T>& _other) const {
+            return x * _other.x + y * _other.y;
+        }
+
         template <typename B>
         explicit operator B() const
         {
