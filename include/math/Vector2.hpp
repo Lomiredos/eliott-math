@@ -39,11 +39,8 @@ namespace ee::math
         }
         Vector2<T> &operator/=(const Vector2<T> &_other)
         {
-            if (_other.x != 0 && _other.y != 0)
-            {
-                x /= _other.x;
-                y /= _other.y;
-            }
+            x /= _other.x;
+            y /= _other.y;
             return *this;
         }
 
@@ -65,15 +62,11 @@ namespace ee::math
         }
         Vector2<T> operator/(const Vector2<T> &_other) const
         {
-            if (_other.x != 0 && _other.y != 0)
-                return Vector2<T>(x / _other.x, y / _other.y);
-            return *this;
+            return Vector2<T>(x / _other.x, y / _other.y);
         }
         Vector2<T> operator/(const T _other) const
         {
-            if (_other != 0)
-                return Vector2<T>(x / _other, y / _other);
-            return *this;
+            return Vector2<T>(x / _other, y / _other);
         }
 
         bool operator==(const Vector2<T> &_other) const
@@ -85,11 +78,13 @@ namespace ee::math
             return !(*this == _other);
         }
 
-        T Magnetude() const { return std::sqrt(x * x + y * y); }
+        T LengthSq() const { return x * x + y * y; }
+        T Magnetude() const { return std::sqrt(LengthSq()); }
         Vector2<T> Normalize() const
         {
-            if (Magnetude() > 0)
-                return *this / Magnetude();
+            T m = Magnetude();
+            if (m > 0)
+                return *this / m;
             return Vector2<T>();
         };
         T Distance(const Vector2<T> &_other) const
