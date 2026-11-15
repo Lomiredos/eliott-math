@@ -1,41 +1,37 @@
 cmake_minimum_required(VERSION 3.20)
-project(eliott-math VERSION 1.0.0 LANGUAGES CXX)
 
 if(TARGET eliott-math)
     return()
 endif()
-if (PROJECT_IS_TOP_LEVEL)
-set(CMAKE_TOOLCHAIN_FILE "C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
-set(CMAKE_PREFIX_PATH "C:/Dev/vcpkg/installed/x64-windows")
-endif()
 
-# Standard C++20 obligatoire
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(eliott-math VERSION 1.0.0 LANGUAGES CXX)
 
-
-
-# --- Lib statique ---
-add_library(eliott-math INTERFACE
-)
+add_library(eliott-math INTERFACE)
+add_library(eliott::math ALIAS eliott-math)
 
 target_include_directories(eliott-math INTERFACE
-
-    include/
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
-if(PROJECT_IS_TOP_LEVEL)
+target_compile_features(eliott-math INTERFACE cxx_std_20)
 
-# --- Dépendances ---
-find_package(doctest CONFIG REQUIRED)
+option(ELIOTT_MATH_BUILD_TESTS "Build eliott-math tests" ${PROJECT_IS_TOP_LEVEL})
 
-# --- Tests ---
-add_executable(tests
-    tests/test_math.cpp
-)
+if(ELIOTT_MATH_BUILD_TESTS)
+    find_package(doctest CONFIG QUIET)
+    if(NOT doctest_FOUND)
+        include(FetchContent)
+        FetchContent_Declare(doctest
+            GIT_REPOSITORY https://github.com/doctest/doctest.git
+            GIT_TAG v2.4.12
+            GIT_SHALLOW TRUE
+        )
+        FetchContent_MakeAvailable(doctest)
+    endif()
 
-target_link_libraries(tests PRIVATE
-    eliott-math
-    doctest::doctest
-)
+    file(GLOB ELIOTT_MATH_TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
+    add_executable(eliott-math-tests ${ELIOTT_MATH_TEST_SOURCES})
+    target_link_libraries(eliott-math-tests PRIVATE eliott::math doctest::doctest)
 
+    enable_testing()
+    add_test(NAME eliott-math-tests COMMAND eliott-math-tests)
 endif()
