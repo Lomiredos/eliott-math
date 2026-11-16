@@ -8,13 +8,13 @@
 
 namespace ee::math {
 
-    template<std::size_t N, std::floating_point T>
-        requires(N >= 2)
-    class Matrix{
-    private:
+    template <std::size_t N, std::floating_point T>
+    requires(N >= 2)
+    class Matrix {
+      private:
         [[nodiscard]] constexpr T detPivotGauss() const noexcept;
 
-    public:
+      public:
         T m[N * N]{};
 
         [[nodiscard]] static constexpr Matrix identity() noexcept;
@@ -43,10 +43,10 @@ namespace ee::math {
         [[nodiscard]] friend constexpr Matrix operator*(T _t, const Matrix& _m) noexcept { return _m * _t; }
 
         [[nodiscard]] constexpr Vector3<T> operator*(const Vector3<T>& _v) const noexcept
-            requires(N == 3);
+        requires(N == 3);
 
         [[nodiscard]] constexpr Quaternion toQuaternion() const noexcept
-            requires(N == 3)
+        requires(N == 3)
         {
 
             T dw = T(1) + (*this)(0, 0) + (*this)(1, 1) + (*this)(2, 2);
@@ -99,49 +99,48 @@ namespace ee::math {
         // fonction reserver pour les 4x4 (ou 3x3 pour rotation)
         // transformation monde
         [[nodiscard]] static constexpr Matrix translation(const Vector3<T>& _t) noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] static constexpr Matrix scaling(const Vector3<T>& _s) noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] static Matrix rotation(const Quaternion& _q) noexcept
-            requires(N == 4 || N == 3);
+        requires(N == 4 || N == 3);
         [[nodiscard]] static Matrix fromTRS(const Vector3<T>& _t, const Quaternion& _r, const Vector3<T>& _s) noexcept
-            requires(N == 4);
+        requires(N == 4);
 
         // fonction reserver pour les 4x4
         // camera
         [[nodiscard]] static constexpr Matrix perspective(T _fovYRad, T _aspect, T _near, T _far) noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] static constexpr Matrix ortho(T _l, T _r, T _b, T _t, T _near, T _far) noexcept
-            requires(N == 4);
-        [[nodiscard]] static constexpr Matrix lookAt(const Vector3<T>& _eye, const Vector3<T>& _center,
-                                                     const Vector3<T>& _up) noexcept
-            requires(N == 4);
+        requires(N == 4);
+        [[nodiscard]] static constexpr Matrix lookAt(const Vector3<T>& _eye, const Vector3<T>& _center, const Vector3<T>& _up) noexcept
+        requires(N == 4);
 
         // fonction reserver pour les 4x4
         // transformation
         [[nodiscard]] constexpr Vector3<T> getTranslation() const noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] constexpr Vector3<T> transformPoint(const Vector3<T>& _p) const noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] constexpr Vector3<T> projectPoint(const Vector3<T>& _p) const noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] constexpr Vector3<T> transformDir(const Vector3<T>& _d) const noexcept
-            requires(N == 4);
+        requires(N == 4);
         [[nodiscard]] constexpr Matrix<3, T> upperLeft3() const noexcept
-            requires(N == 4);
+        requires(N == 4);
 
         [[nodiscard]] constexpr Matrix<3, T> normalMatrix() const noexcept
-            requires(N == 4);
+        requires(N == 4);
 
         [[nodiscard]] constexpr T determinant() const noexcept;
 
         [[nodiscard]] constexpr std::optional<Matrix> inverse(T _eps = T(1e-6)) const noexcept;
 
         [[nodiscard]] constexpr Matrix inverseAffine() const noexcept
-            requires(N == 4);
+        requires(N == 4);
 
         constexpr bool decompose(Vector3<T>& _t, Quaternion& _r, Vector3<T>& _s) const noexcept
-            requires(N == 4)
+        requires(N == 4)
         {
             Matrix<3, T> ul = upperLeft3();
             T sca[3] = {T(0), T(0), T(0)};
@@ -149,7 +148,8 @@ namespace ee::math {
             for (std::size_t col = 0; col < 3; ++col) {
                 for (std::size_t row = 0; row < 3; ++row)
                     sca[col] += ul(row, col) * ul(row, col);
-                if (sca[col] < eps) return false;
+                if (sca[col] < eps)
+                    return false;
             }
 
             _t.x = (*this)(0, 3);
@@ -181,6 +181,6 @@ namespace ee::math {
         }
     };
 
-} //namespace
+} // namespace ee::math
 
 #include "Matrix.inl"

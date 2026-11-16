@@ -1,7 +1,7 @@
 Convention de la lib Math
 
 camelCase
-[[nodiscard]]sur tous ce qui renvoie une valeur sans modifier l'obj
+[[nodiscard]] sur tous ce qui renvoie une valeur sans modifier l'obj
 constexpr / const a chaque fois que c'est possible
 noexcept partous, on ne doit pas faire d'allocation dans la lib
 

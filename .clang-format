@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 200
+PointerAlignment: Left
+ReferenceAlignment: Left
+NamespaceIndentation: All
+RequiresClausePosition: OwnLine
+IndentRequiresClause: false
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortFunctionsOnASingleLine: Inline
