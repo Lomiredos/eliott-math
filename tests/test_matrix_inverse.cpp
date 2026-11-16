@@ -6,11 +6,11 @@
 #include "math/Quaternion.hpp"
 
 using ee::math::Matrix;
-using ee::math::Quaternion;
+using Quaternion = ee::math::Quaternion<float>;
 using Mat2 = Matrix<2, float>;
 using Mat3 = Matrix<3, float>;
 using Mat4 = Matrix<4, float>;
-using Vec3 = ee::math::Vector3<float>;
+using Vec3 = ee::math::Vector<3, float>;
 
 namespace
 {

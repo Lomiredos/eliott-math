@@ -1,7 +1,6 @@
 #pragma once
-#include "math/Quaternion.hpp"
-#include "math/Vector3.hpp"
-#include <algorithm>
+#include "Quaternion.hpp"
+#include "Vector.hpp"
 #include <concepts>
 #include <cstddef>
 #include <optional>
@@ -42,69 +41,25 @@ namespace ee::math {
         [[nodiscard]] constexpr Matrix operator*(T _t) const noexcept;
         [[nodiscard]] friend constexpr Matrix operator*(T _t, const Matrix& _m) noexcept { return _m * _t; }
 
-        [[nodiscard]] constexpr Vector3<T> operator*(const Vector3<T>& _v) const noexcept
+        [[nodiscard]] constexpr Vector<3, T> operator*(const Vector<3, T>& _v) const noexcept
         requires(N == 3);
 
-        [[nodiscard]] constexpr Quaternion toQuaternion() const noexcept
+        [[nodiscard]] Quaternion<T> toQuaternion() const noexcept
         requires(N == 3)
         {
-
-            T dw = T(1) + (*this)(0, 0) + (*this)(1, 1) + (*this)(2, 2);
-            T dx = T(1) + (*this)(0, 0) - (*this)(1, 1) - (*this)(2, 2);
-            T dy = T(1) - (*this)(0, 0) + (*this)(1, 1) - (*this)(2, 2);
-            T dz = T(1) - (*this)(0, 0) - (*this)(1, 1) + (*this)(2, 2);
-
-            T max = std::max({dw, dx, dy, dz});
-
-            Quaternion q;
-            if (max == dw) {
-                q.w = T(0.5) * std::sqrt(dw);
-
-                T invqw4 = T(0.25) / q.w;
-
-                q.x = ((*this)(2, 1) - (*this)(1, 2)) * invqw4;
-                q.y = ((*this)(0, 2) - (*this)(2, 0)) * invqw4;
-                q.z = ((*this)(1, 0) - (*this)(0, 1)) * invqw4;
-            } else if (max == dx) {
-                q.x = T(0.5) * std::sqrt(dx);
-
-                T invqx4 = T(0.25) / q.x;
-
-                q.w = ((*this)(2, 1) - (*this)(1, 2)) * invqx4;
-                q.y = ((*this)(0, 1) + (*this)(1, 0)) * invqx4;
-                q.z = ((*this)(0, 2) + (*this)(2, 0)) * invqx4;
-            } else if (max == dy) {
-
-                q.y = T(0.5) * std::sqrt(dy);
-
-                T invqy4 = T(0.25) / q.y;
-
-                q.w = ((*this)(0, 2) - (*this)(2, 0)) * invqy4;
-                q.x = ((*this)(0, 1) + (*this)(1, 0)) * invqy4;
-                q.z = ((*this)(1, 2) + (*this)(2, 1)) * invqy4;
-            } else {
-
-                q.z = T(0.5) * std::sqrt(dz);
-
-                T invqz4 = T(0.25) / q.z;
-
-                q.w = ((*this)(1, 0) - (*this)(0, 1)) * invqz4;
-                q.x = ((*this)(0, 2) + (*this)(2, 0)) * invqz4;
-                q.y = ((*this)(1, 2) + (*this)(2, 1)) * invqz4;
-            }
-
-            return q;
+            const Matrix& a = *this;
+            return Quaternion<T>::fromBasis({a(0, 0), a(1, 0), a(2, 0)}, {a(0, 1), a(1, 1), a(2, 1)}, {a(0, 2), a(1, 2), a(2, 2)});
         }
 
         // fonction reserver pour les 4x4 (ou 3x3 pour rotation)
         // transformation monde
-        [[nodiscard]] static constexpr Matrix translation(const Vector3<T>& _t) noexcept
+        [[nodiscard]] static constexpr Matrix translation(const Vector<3, T>& _t) noexcept
         requires(N == 4);
-        [[nodiscard]] static constexpr Matrix scaling(const Vector3<T>& _s) noexcept
+        [[nodiscard]] static constexpr Matrix scaling(const Vector<3, T>& _s) noexcept
         requires(N == 4);
-        [[nodiscard]] static Matrix rotation(const Quaternion& _q) noexcept
+        [[nodiscard]] static Matrix rotation(const Quaternion<T>& _q) noexcept
         requires(N == 4 || N == 3);
-        [[nodiscard]] static Matrix fromTRS(const Vector3<T>& _t, const Quaternion& _r, const Vector3<T>& _s) noexcept
+        [[nodiscard]] static Matrix fromTRS(const Vector<3, T>& _t, const Quaternion<T>& _r, const Vector<3, T>& _s) noexcept
         requires(N == 4);
 
         // fonction reserver pour les 4x4
@@ -113,18 +68,18 @@ namespace ee::math {
         requires(N == 4);
         [[nodiscard]] static constexpr Matrix ortho(T _l, T _r, T _b, T _t, T _near, T _far) noexcept
         requires(N == 4);
-        [[nodiscard]] static constexpr Matrix lookAt(const Vector3<T>& _eye, const Vector3<T>& _center, const Vector3<T>& _up) noexcept
+        [[nodiscard]] static constexpr Matrix lookAt(const Vector<3, T>& _eye, const Vector<3, T>& _center, const Vector<3, T>& _up) noexcept
         requires(N == 4);
 
         // fonction reserver pour les 4x4
         // transformation
-        [[nodiscard]] constexpr Vector3<T> getTranslation() const noexcept
+        [[nodiscard]] constexpr Vector<3, T> getTranslation() const noexcept
         requires(N == 4);
-        [[nodiscard]] constexpr Vector3<T> transformPoint(const Vector3<T>& _p) const noexcept
+        [[nodiscard]] constexpr Vector<3, T> transformPoint(const Vector<3, T>& _p) const noexcept
         requires(N == 4);
-        [[nodiscard]] constexpr Vector3<T> projectPoint(const Vector3<T>& _p) const noexcept
+        [[nodiscard]] constexpr Vector<3, T> projectPoint(const Vector<3, T>& _p) const noexcept
         requires(N == 4);
-        [[nodiscard]] constexpr Vector3<T> transformDir(const Vector3<T>& _d) const noexcept
+        [[nodiscard]] constexpr Vector<3, T> transformDir(const Vector<3, T>& _d) const noexcept
         requires(N == 4);
         [[nodiscard]] constexpr Matrix<3, T> upperLeft3() const noexcept
         requires(N == 4);
@@ -134,12 +89,12 @@ namespace ee::math {
 
         [[nodiscard]] constexpr T determinant() const noexcept;
 
-        [[nodiscard]] constexpr std::optional<Matrix> inverse(T _eps = T(1e-6)) const noexcept;
+        [[nodiscard]] constexpr std::optional<Matrix> inverse(T _eps = T(1e-5)) const noexcept;
 
         [[nodiscard]] constexpr Matrix inverseAffine() const noexcept
         requires(N == 4);
 
-        constexpr bool decompose(Vector3<T>& _t, Quaternion& _r, Vector3<T>& _s) const noexcept
+        constexpr bool decompose(Vector<3, T>& _t, Quaternion<T>& _r, Vector<3, T>& _s) const noexcept
         requires(N == 4)
         {
             Matrix<3, T> ul = upperLeft3();

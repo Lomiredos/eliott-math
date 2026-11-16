@@ -6,7 +6,7 @@
 
 using ee::math::Matrix;
 using Mat4 = Matrix<4, float>;
-using Vec3 = ee::math::Vector3<float>;
+using Vec3 = ee::math::Vector<3, float>;
 
 namespace
 {

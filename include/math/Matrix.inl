@@ -1,6 +1,5 @@
 #pragma once
 #include "Matrix.hpp"
-#include "math/Quaternion.hpp"
 #include <concepts>
 #include <cstddef>
 
@@ -147,7 +146,7 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Vector3<T> Matrix<N, T>::operator*(const Vector3<T>& _v) const noexcept
+    constexpr Vector<3, T> Matrix<N, T>::operator*(const Vector<3, T>& _v) const noexcept
     requires(N == 3)
     {
         const T b[3]{_v.x, _v.y, _v.z};
@@ -184,7 +183,7 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Matrix<N, T> Matrix<N, T>::scaling(const Vector3<T>& _s) noexcept
+    constexpr Matrix<N, T> Matrix<N, T>::scaling(const Vector<3, T>& _s) noexcept
     requires(N == 4)
     {
         Matrix r = Matrix::identity();
@@ -196,7 +195,7 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Matrix<N, T> Matrix<N, T>::translation(const Vector3<T>& _t) noexcept
+    constexpr Matrix<N, T> Matrix<N, T>::translation(const Vector<3, T>& _t) noexcept
     requires(N == 4)
     {
         Matrix r = Matrix::identity();
@@ -207,12 +206,12 @@ namespace ee::math {
     }
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    Matrix<N, T> Matrix<N, T>::rotation(const Quaternion& _q) noexcept
+    Matrix<N, T> Matrix<N, T>::rotation(const Quaternion<T>& _q) noexcept
     requires(N == 4 || N == 3)
     {
         Quaternion q = _q;
         if (_q.isNormalized() == false)
-            q = _q.Normalize();
+            q = _q.normalized();
         // check formule de Rodrigues si tu comprend pas
         T w = static_cast<T>(q.w), x = static_cast<T>(q.x), y = static_cast<T>(q.y), z = static_cast<T>(q.z);
         Matrix r = identity();
@@ -234,7 +233,7 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    Matrix<N, T> Matrix<N, T>::fromTRS(const Vector3<T>& _t, const Quaternion& _r, const Vector3<T>& _s) noexcept
+    Matrix<N, T> Matrix<N, T>::fromTRS(const Vector<3, T>& _t, const Quaternion<T>& _r, const Vector<3, T>& _s) noexcept
     requires(N == 4)
     {
         Matrix r = rotation(_r);
@@ -288,14 +287,14 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Matrix<N, T> Matrix<N, T>::lookAt(const Vector3<T>& _eye, const Vector3<T>& _center, const Vector3<T>& _up) noexcept
+    constexpr Matrix<N, T> Matrix<N, T>::lookAt(const Vector<3, T>& _eye, const Vector<3, T>& _center, const Vector<3, T>& _up) noexcept
     requires(N == 4)
     {
-        Vector3<T> f = _center - _eye;
-        f.Normalized();
-        Vector3<T> s{f.y * _up.z - f.z * _up.y, f.z * _up.x - f.x * _up.z, f.x * _up.y - f.y * _up.x};
-        s.Normalized();
-        Vector3<T> u{s.y * f.z - s.z * f.y, s.z * f.x - s.x * f.z, s.x * f.y - s.y * f.x};
+        Vector<3, T> f = _center - _eye;
+        f.normalize();
+        Vector<3, T> s{f.y * _up.z - f.z * _up.y, f.z * _up.x - f.x * _up.z, f.x * _up.y - f.y * _up.x};
+        s.normalize();
+        Vector<3, T> u{s.y * f.z - s.z * f.y, s.z * f.x - s.x * f.z, s.x * f.y - s.y * f.x};
 
         Matrix r{};
 
@@ -321,7 +320,7 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Vector3<T> Matrix<N, T>::getTranslation() const noexcept
+    constexpr Vector<3, T> Matrix<N, T>::getTranslation() const noexcept
     requires(N == 4)
     {
         return {(*this)(0, 3), (*this)(1, 3), (*this)(2, 3)};
@@ -329,11 +328,11 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Vector3<T> Matrix<N, T>::transformPoint(const Vector3<T>& _p) const noexcept
+    constexpr Vector<3, T> Matrix<N, T>::transformPoint(const Vector<3, T>& _p) const noexcept
     requires(N == 4)
     {
         const T b[3]{_p.x, _p.y, _p.z};
-        Vector3<T> trans = getTranslation();
+        Vector<3, T> trans = getTranslation();
         T r[3]{trans.x, trans.y, trans.z};
 
         for (std::size_t k = 0; k < 3; ++k) {
@@ -345,7 +344,7 @@ namespace ee::math {
     }
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Vector3<T> Matrix<N, T>::projectPoint(const Vector3<T>& _p) const noexcept
+    constexpr Vector<3, T> Matrix<N, T>::projectPoint(const Vector<3, T>& _p) const noexcept
     requires(N == 4)
     {
         const T b[4]{_p.x, _p.y, _p.z, T(1)};
@@ -363,7 +362,7 @@ namespace ee::math {
     }
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Vector3<T> Matrix<N, T>::transformDir(const Vector3<T>& _d) const noexcept
+    constexpr Vector<3, T> Matrix<N, T>::transformDir(const Vector<3, T>& _d) const noexcept
     requires(N == 4)
     {
         const T b[3]{_d.x, _d.y, _d.z};
@@ -400,13 +399,13 @@ namespace ee::math {
         Matrix<3, T> ul = upperLeft3();
         Matrix<3, T> r{};
 
-        const Vector3<T> c0{ul(0, 0), ul(1, 0), ul(2, 0)};
-        const Vector3<T> c1{ul(0, 1), ul(1, 1), ul(2, 1)};
-        const Vector3<T> c2{ul(0, 2), ul(1, 2), ul(2, 2)};
+        const Vector<3, T> c0{ul(0, 0), ul(1, 0), ul(2, 0)};
+        const Vector<3, T> c1{ul(0, 1), ul(1, 1), ul(2, 1)};
+        const Vector<3, T> c2{ul(0, 2), ul(1, 2), ul(2, 2)};
 
-        const Vector3<T> n0 = c1.Cross(c2);
-        const Vector3<T> n1 = c2.Cross(c0);
-        const Vector3<T> n2 = c0.Cross(c1);
+        const Vector<3, T> n0 = cross(c1, c2);
+        const Vector<3, T> n1 = cross(c2, c0);
+        const Vector<3, T> n2 = cross(c0, c1);
 
         r(0, 0) = n0.x;
         r(1, 0) = n0.y;
@@ -454,20 +453,20 @@ namespace ee::math {
             r(1, 0) = -(*this)(1, 0) * invDet;
             return r;
         } else if constexpr (N == 3) {
-            const Vector3<T> c0{(*this)(0, 0), (*this)(1, 0), (*this)(2, 0)};
-            const Vector3<T> c1{(*this)(0, 1), (*this)(1, 1), (*this)(2, 1)};
-            const Vector3<T> c2{(*this)(0, 2), (*this)(1, 2), (*this)(2, 2)};
+            const Vector<3, T> c0{(*this)(0, 0), (*this)(1, 0), (*this)(2, 0)};
+            const Vector<3, T> c1{(*this)(0, 1), (*this)(1, 1), (*this)(2, 1)};
+            const Vector<3, T> c2{(*this)(0, 2), (*this)(1, 2), (*this)(2, 2)};
 
-            const Vector3<T> n0 = c1.Cross(c2);
-            const Vector3<T> n1 = c2.Cross(c0);
-            const Vector3<T> n2 = c0.Cross(c1);
+            const Vector<3, T> n0 = cross(c1, c2);
+            const Vector<3, T> n1 = cross(c2, c0);
+            const Vector<3, T> n2 = cross(c0, c1);
 
             const T det = c0.x * n0.x + c0.y * n0.y + c0.z * n0.z;
             if (absT(det) < _eps)
                 return std::nullopt;
 
             const T invDet = T(1) / det;
-            const Vector3<T> rows[3]{n0, n1, n2};
+            const Vector<3, T> rows[3]{n0, n1, n2};
             Matrix r{};
             for (std::size_t row = 0; row < 3; ++row) {
                 r(row, 0) = rows[row].x * invDet;
@@ -529,7 +528,7 @@ namespace ee::math {
         if (!inv3)
             return identity();
 
-        const Vector3<T> t = *inv3 * getTranslation();
+        const Vector<3, T> t = *inv3 * getTranslation();
 
         Matrix r = identity();
         for (std::size_t col = 0; col < 3; ++col) {

@@ -4,10 +4,10 @@
 #include "math/Quaternion.hpp"
 
 using ee::math::Matrix;
-using ee::math::Quaternion;
+using Quaternion = ee::math::Quaternion<float>;
 using Mat3 = Matrix<3, float>;
 using Mat4 = Matrix<4, float>;
-using Vec3 = ee::math::Vector3<float>;
+using Vec3 = ee::math::Vector<3, float>;
 
 namespace
 {
@@ -118,7 +118,7 @@ TEST_CASE("rotation : R * R^T == identite (pas de deformation)")
 TEST_CASE("rotation : quaternion non normalise = meme rotation")
 {
     const Quaternion q = Quaternion::fromEulerDeg(30.f, 45.f, 60.f);
-    const Quaternion big{q.w * 3.f, q.x * 3.f, q.y * 3.f, q.z * 3.f};
+    const Quaternion big{q.x * 3.f, q.y * 3.f, q.z * 3.f, q.w * 3.f};
     CHECK(Mat4::rotation(big).nearlyEqual(Mat4::rotation(q), 1e-5f));
 }
 
@@ -138,7 +138,7 @@ TEST_CASE("rotation : Matrix<4, double>")
 {
     using Mat4d = Matrix<4, double>;
     const Quaternion q = Quaternion::fromEulerDeg(30.f, 45.f, 60.f);
-    const Mat4d rd = Mat4d::rotation(q);
+    const Mat4d rd = Mat4d::rotation(ee::math::Quaternion<double>::fromEulerDeg(30.0, 45.0, 60.0));
     const Mat4 rf = Mat4::rotation(q);
     for (std::size_t i = 0; i < 16; ++i)
         CHECK(rd.m[i] == doctest::Approx(rf.m[i]).epsilon(1e-5));

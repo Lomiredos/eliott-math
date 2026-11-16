@@ -9,7 +9,7 @@ using ee::math::Matrix;
 using ee::math::Quaternion;
 using Mat3 = Matrix<3, float>;
 using Mat4 = Matrix<4, float>;
-using Vec3 = ee::math::Vector3<float>;
+using Vec3 = ee::math::Vector<3, float>;
 
 namespace
 {
@@ -19,10 +19,6 @@ namespace
         CHECK(_a.y == doctest::Approx(_b.y).epsilon(_eps));
         CHECK(_a.z == doctest::Approx(_b.z).epsilon(_eps));
     }
-
-    float dot(const Vec3 &_a, const Vec3 &_b) { return _a.x * _b.x + _a.y * _b.y + _a.z * _b.z; }
-
-    Vec3 sub(const Vec3 &_a, const Vec3 &_b) { return {_a.x - _b.x, _a.y - _b.y, _a.z - _b.z}; }
 
     Vec3 refMul4(const Mat4 &_m, const Vec3 &_v, float _w)
     {
@@ -34,7 +30,7 @@ namespace
         return {r[0], r[1], r[2]};
     }
 
-    const Quaternion kQ = Quaternion::fromEulerDeg(30.f, 45.f, 60.f);
+    const Quaternion<float> kQ = Quaternion<float>::fromEulerDeg(30.f, 45.f, 60.f);
     const Vec3 kT{1.f, -2.f, 3.f};
     const Vec3 kS{2.f, 3.f, 4.f};
 }
@@ -62,7 +58,7 @@ TEST_CASE("transformPoint == produit 4x4 complet avec w = 1")
 
 TEST_CASE("transformPoint : echelle, puis rotation, puis translation")
 {
-    const Mat4 m = Mat4::fromTRS({10.f, 0.f, 0.f}, Quaternion::fromEulerDeg(0.f, 90.f, 0.f), {2.f, 1.f, 1.f});
+    const Mat4 m = Mat4::fromTRS({10.f, 0.f, 0.f}, Quaternion<float>::fromEulerDeg(0.f, 90.f, 0.f), {2.f, 1.f, 1.f});
     checkVec(m.transformPoint({1.f, 0.f, 0.f}), {10.f, 0.f, -2.f});
 }
 
@@ -92,7 +88,7 @@ TEST_CASE("point et direction : P(b) - P(a) == D(b - a)")
 {
     const Mat4 m = Mat4::fromTRS(kT, kQ, kS);
     const Vec3 a{1.f, 2.f, 3.f}, b{-4.f, 0.5f, 2.f};
-    checkVec(sub(m.transformPoint(b), m.transformPoint(a)), m.transformDir(sub(b, a)));
+    checkVec(m.transformPoint(b) - m.transformPoint(a), m.transformDir(b - a));
 }
 
 TEST_CASE("projectPoint : identique a transformPoint pour une matrice affine")

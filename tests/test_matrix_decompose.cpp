@@ -6,10 +6,10 @@
 #include "math/Quaternion.hpp"
 
 using ee::math::Matrix;
-using ee::math::Quaternion;
+using Quaternion = ee::math::Quaternion<float>;
 using Mat3 = Matrix<3, float>;
 using Mat4 = Matrix<4, float>;
-using Vec3 = ee::math::Vector3<float>;
+using Vec3 = ee::math::Vector<3, float>;
 
 namespace
 {
@@ -20,16 +20,6 @@ namespace
     bool nearVec(const Vec3 &_a, const Vec3 &_b, float _eps = kEps)
     {
         return near(_a.x, _b.x, _eps) && near(_a.y, _b.y, _eps) && near(_a.z, _b.z, _eps);
-    }
-
-    float dot(const Quaternion &_a, const Quaternion &_b)
-    {
-        return _a.w * _b.w + _a.x * _b.x + _a.y * _b.y + _a.z * _b.z;
-    }
-
-    bool sameRotation(const Quaternion &_a, const Quaternion &_b, float _eps = kEps)
-    {
-        return near(std::fabs(dot(_a, _b)), 1.0f, _eps);
     }
 
     struct TRS
@@ -75,7 +65,7 @@ TEST_CASE("toQuaternion : rotation(q).toQuaternion() == +-q, dans les 4 branches
         CAPTURE(q.y);
         CAPTURE(q.z);
         const Quaternion r = Mat3::rotation(q).toQuaternion();
-        CHECK(sameRotation(q, r));
+        CHECK(sameRotation(q, r, kEps));
         CHECK(near(dot(r, r), 1.0f));
         CHECK(Mat3::rotation(r).nearlyEqual(Mat3::rotation(q), kEps));
     }
@@ -85,7 +75,7 @@ TEST_CASE("toQuaternion : branche x avec des composantes non nulles (signes)")
 {
     const Quaternion q = Quaternion::fromAxisAngle({0.6f, 0.0f, 0.8f}, 3.0f);
     const Quaternion r = Mat3::rotation(q).toQuaternion();
-    CHECK(sameRotation(q, r));
+    CHECK(sameRotation(q, r, kEps));
 }
 
 TEST_CASE("decompose : retrouve t, s et la rotation (echelles positives)")
@@ -99,7 +89,7 @@ TEST_CASE("decompose : retrouve t, s et la rotation (echelles positives)")
         REQUIRE(m.decompose(t, r, s));
         CHECK(nearVec(t, c.t));
         CHECK(nearVec(s, c.s));
-        CHECK(sameRotation(r, c.r));
+        CHECK(sameRotation(r, c.r, kEps));
         CHECK(Mat4::fromTRS(t, r, s).nearlyEqual(m, kEps));
     }
 }
