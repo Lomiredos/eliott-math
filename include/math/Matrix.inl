@@ -146,18 +146,14 @@ namespace ee::math {
 
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
-    constexpr Vector<3, T> Matrix<N, T>::operator*(const Vector<3, T>& _v) const noexcept
-    requires(N == 3)
+    constexpr Vector<N, T> Matrix<N, T>::operator*(const Vector<N, T>& _v) const noexcept
+    requires(N <= 4)
     {
-        const T b[3]{_v.x, _v.y, _v.z};
-        T r[3]{};
-
-        for (std::size_t k = 0; k < 3; ++k) {
-            for (std::size_t row = 0; row < 3; ++row) {
-                r[row] += (*this)(row, k) * b[k];
-            }
-        }
-        return {r[0], r[1], r[2]};
+        Vector<N, T> r{};
+        for (std::size_t col = 0; col < N; ++col)
+            for (std::size_t row = 0; row < N; ++row)
+                r[row] += (*this)(row, col) * _v[col];
+        return r;
     }
 
     template <std::size_t N, std::floating_point T>
@@ -213,7 +209,7 @@ namespace ee::math {
         if (_q.isNormalized() == false)
             q = _q.normalized();
         // check formule de Rodrigues si tu comprend pas
-        T w = static_cast<T>(q.w), x = static_cast<T>(q.x), y = static_cast<T>(q.y), z = static_cast<T>(q.z);
+        T w = q.w, x = q.x, y = q.y, z = q.z;
         Matrix r = identity();
 
         // pratique, les case symetrique on le meme produit avec le signe du w
@@ -347,18 +343,11 @@ namespace ee::math {
     constexpr Vector<3, T> Matrix<N, T>::projectPoint(const Vector<3, T>& _p) const noexcept
     requires(N == 4)
     {
-        const T b[4]{_p.x, _p.y, _p.z, T(1)};
-        T r[4]{};
-
-        for (std::size_t k = 0; k < 4; ++k) {
-            for (std::size_t row = 0; row < 4; ++row) {
-                r[row] += (*this)(row, k) * b[k];
-            }
-        }
-        if (r[3] == T(0))
-            return {r[0], r[1], r[2]};
-        const T inv = T(1) / r[3];
-        return {r[0] * inv, r[1] * inv, r[2] * inv}; // 1 div + 3 mult coute moin cher que 3 div
+        const Vector<4, T> h = *this * Vector<4, T>{_p.x, _p.y, _p.z, T(1)};
+        if (h.w == T(0))
+            return {h.x, h.y, h.z};
+        const T inv = T(1) / h.w;
+        return {h.x * inv, h.y * inv, h.z * inv};
     }
     template <std::size_t N, std::floating_point T>
     requires(N >= 2)
@@ -541,4 +530,47 @@ namespace ee::math {
         r(2, 3) = -t.z;
         return r;
     }
+
+    template <std::size_t N, std::floating_point T>
+    requires(N >= 2)
+    Quaternion<T> Matrix<N, T>::toQuaternion() const noexcept
+    requires(N == 3)
+    {
+        const Matrix& a = *this;
+        return Quaternion<T>::fromBasis({a(0, 0), a(1, 0), a(2, 0)}, {a(0, 1), a(1, 1), a(2, 1)}, {a(0, 2), a(1, 2), a(2, 2)});
+    }
+
+    template <std::size_t N, std::floating_point T>
+    requires(N >= 2)
+    bool Matrix<N, T>::decompose(Vector<3, T>& _t, Quaternion<T>& _r, Vector<3, T>& _s, T _eps) const noexcept
+    requires(N == 4)
+    {
+        Matrix<3, T> ul = upperLeft3();
+        T scaleSq[3]{};
+        for (std::size_t col = 0; col < 3; ++col) {
+            for (std::size_t row = 0; row < 3; ++row)
+                scaleSq[col] += ul(row, col) * ul(row, col);
+            if (scaleSq[col] < _eps)
+                return false;
+        }
+
+        _t = getTranslation();
+        _s = {std::sqrt(scaleSq[0]), std::sqrt(scaleSq[1]), std::sqrt(scaleSq[2])};
+
+        for (std::size_t col = 0; col < 3; ++col) {
+            const T inv = T(1) / _s[col];
+            for (std::size_t row = 0; row < 3; ++row)
+                ul(row, col) *= inv;
+        }
+
+        if (ul.determinant() < T(0)) {
+            _s.x = -_s.x;
+            for (std::size_t row = 0; row < 3; ++row)
+                ul(row, 0) = -ul(row, 0);
+        }
+
+        _r = ul.toQuaternion();
+        return true;
+    }
+
 } // namespace ee::math

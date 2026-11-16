@@ -1,6 +1,7 @@
 #pragma once
 #include "Quaternion.hpp"
 #include "Vector.hpp"
+#include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <optional>
@@ -41,15 +42,11 @@ namespace ee::math {
         [[nodiscard]] constexpr Matrix operator*(T _t) const noexcept;
         [[nodiscard]] friend constexpr Matrix operator*(T _t, const Matrix& _m) noexcept { return _m * _t; }
 
-        [[nodiscard]] constexpr Vector<3, T> operator*(const Vector<3, T>& _v) const noexcept
-        requires(N == 3);
+        [[nodiscard]] constexpr Vector<N, T> operator*(const Vector<N, T>& _v) const noexcept
+        requires(N <= 4);
 
         [[nodiscard]] Quaternion<T> toQuaternion() const noexcept
-        requires(N == 3)
-        {
-            const Matrix& a = *this;
-            return Quaternion<T>::fromBasis({a(0, 0), a(1, 0), a(2, 0)}, {a(0, 1), a(1, 1), a(2, 1)}, {a(0, 2), a(1, 2), a(2, 2)});
-        }
+        requires(N == 3);
 
         // fonction reserver pour les 4x4 (ou 3x3 pour rotation)
         // transformation monde
@@ -94,46 +91,8 @@ namespace ee::math {
         [[nodiscard]] constexpr Matrix inverseAffine() const noexcept
         requires(N == 4);
 
-        constexpr bool decompose(Vector<3, T>& _t, Quaternion<T>& _r, Vector<3, T>& _s) const noexcept
-        requires(N == 4)
-        {
-            Matrix<3, T> ul = upperLeft3();
-            T sca[3] = {T(0), T(0), T(0)};
-            T eps = 1e-5;
-            for (std::size_t col = 0; col < 3; ++col) {
-                for (std::size_t row = 0; row < 3; ++row)
-                    sca[col] += ul(row, col) * ul(row, col);
-                if (sca[col] < eps)
-                    return false;
-            }
-
-            _t.x = (*this)(0, 3);
-            _t.y = (*this)(1, 3);
-            _t.z = (*this)(2, 3);
-
-            _s.x = std::sqrt(sca[0]);
-            _s.y = std::sqrt(sca[1]);
-            _s.z = std::sqrt(sca[2]);
-
-            T invSca[3] = {T(1) / _s.x, T(1) / _s.y, T(1) / _s.z};
-
-            for (std::size_t k = 0; k < 3; ++k) {
-                for (std::size_t col = 0; col < 3; ++col) {
-                    ul(k, col) *= invSca[col];
-                }
-            }
-
-            if (ul.determinant() < 0) {
-                _s.x = -_s.x;
-                for (std::size_t row = 0; row < 3; ++row) {
-                    ul(row, 0) *= -1;
-                }
-            }
-
-            _r = ul.toQuaternion();
-
-            return true;
-        }
+        [[nodiscard]] bool decompose(Vector<3, T>& _t, Quaternion<T>& _r, Vector<3, T>& _s, T _eps = T(1e-5)) const noexcept
+        requires(N == 4);
     };
 
 } // namespace ee::math
