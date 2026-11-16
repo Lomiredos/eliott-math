@@ -13,10 +13,14 @@ namespace ee::math {
 
     template <std::floating_point T>
     Quaternion<T> Quaternion<T>::fromEulerDeg(T _rxDeg, T _ryDeg, T _rzDeg) noexcept {
-        const Quaternion qx = fromAxisAngle({T(1), T(0), T(0)}, _rxDeg * constants::degToRad<T>);
-        const Quaternion qy = fromAxisAngle({T(0), T(1), T(0)}, _ryDeg * constants::degToRad<T>);
-        const Quaternion qz = fromAxisAngle({T(0), T(0), T(1)}, _rzDeg * constants::degToRad<T>);
-        return qz * qy * qx;
+        constexpr T k = constants::degToRad<T> * T(0.5);
+        const T cx = std::cos(_rxDeg * k), sx = std::sin(_rxDeg * k);
+        const T cy = std::cos(_ryDeg * k), sy = std::sin(_ryDeg * k);
+        const T cz = std::cos(_rzDeg * k), sz = std::sin(_rzDeg * k);
+        return {cz * cy * sx - sz * sy * cx,
+                cz * sy * cx + sz * cy * sx,
+                sz * cy * cx - cz * sy * sx,
+                cz * cy * cx + sz * sy * sx};
     }
 
     template <std::floating_point T>

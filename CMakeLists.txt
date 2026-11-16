@@ -35,3 +35,13 @@ if(ELIOTT_MATH_BUILD_TESTS)
     enable_testing()
     add_test(NAME eliott-math-tests COMMAND eliott-math-tests)
 endif()
+
+option(ELIOTT_MATH_BUILD_BENCH "Build eliott-math benchmark" ${PROJECT_IS_TOP_LEVEL})
+
+if(ELIOTT_MATH_BUILD_BENCH)
+    add_executable(eliott-math-bench bench/bench.cpp)
+    target_link_libraries(eliott-math-bench PRIVATE eliott::math)
+    target_compile_options(eliott-math-bench PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-O2>
+        $<$<CXX_COMPILER_ID:MSVC>:/O2>)
+endif()

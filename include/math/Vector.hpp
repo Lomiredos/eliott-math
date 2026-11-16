@@ -1,5 +1,5 @@
 #pragma once
-#include "easing.hpp"
+#include "Easing.hpp"
 #include <array>
 #include <bit>
 #include <cmath>
@@ -56,7 +56,7 @@ namespace ee::math {
 
         template <class R = T, class F>
         static constexpr R sum(F&& _f) noexcept {
-            return [&]<std::size_t... I>(std::index_sequence<I...>) { return (R(_f(I)) + ...); }(std::make_index_sequence<N>{});
+            return [&]<std::size_t... I>(std::index_sequence<I...>) { return (... + R(_f(I))); }(std::make_index_sequence<N>{});
         }
 
       public:
